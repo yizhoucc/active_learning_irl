@@ -98,7 +98,7 @@ for phi, theta in Y:
         ep_action=np.array(ep_action)
         ep_action.shape
         ep_obs.shape
-        this_data.append(np.hstack([ep_obs,ep_action.reshape(-1,1)]))
+        this_data.append(np.hstack([ep_obs[:,:4],ep_action.reshape(-1,1)]))
     # for more samples, it adds to the ts, by vstack
     X.append(np.vstack(this_data))
     
@@ -112,11 +112,16 @@ env.close()
 assert len(Y)==len(X)
 
 
+
 # saving
 # TODO, integrate config into agent? or something similar
-note='0328test'
+note='0329testv2'
 with open('data/{}_{}'.format(agent_name, note), 'wb+') as f:
     pickle.dump((X, Y), f)
 
 from notification import notify
 notify()
+
+
+    
+
