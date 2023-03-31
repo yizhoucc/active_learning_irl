@@ -63,27 +63,27 @@ assert len(vary_param_list)==reso**len(vary_param_names)
       
 # now the vary_param_list is all the parameter in either phi and theta. we want phi x theta
 # the (phi, theta)s make Y, which is the label.
+nsample=100
 Y=[]
 for i in range(len(vary_param_list)):
     for p in vary_param_list:
-        Y.append([vary_param_list[i], p])
-assert len(Y)==(reso**len(vary_param_names))**2
+        Y+=[[vary_param_list[i], p]]*nsample
+assert len(Y)==(reso**len(vary_param_names))**2*nsample
 
 
 
 # let agent interact with env ##################
 env = cartpole.CartPoleEnv()
-agent_name='ppo_baseline_0330'
+agent_name='ppo_baseline_0331_linear'
 agent = PPO.load(Path('trained_agent')/agent_name)
 
 # the time series data corresponding to Y is the input, X
-X=[]
-nsample=100 # sample per phi x theta combination
+X=[] # sample per phi x theta combination
 for phi, theta in Y:
     # data of this phi x theta combination, 
     # in format of (ts, obs+action), where obs first action last
     this_data=[] 
-    for _ in range(nsample):
+    for _ in range(1):
         obs = env.reset(phi=phi,theta=theta)
         ep_obs=[]
         ep_action=[]
@@ -98,9 +98,9 @@ for phi, theta in Y:
         ep_action=np.array(ep_action)
         ep_action.shape
         ep_obs.shape
-        this_data.append(np.hstack([ep_obs[:,:4],ep_action.reshape(-1,1)]))
-    # for more samples, it adds to the ts, by vstack
-    X.append(np.vstack(this_data).astype(np.float32))
+        this_data.append(np.hstack([ep_obs[:,:4].astype(np.float32),ep_action.reshape(-1,1)]))
+    # X.append(np.vstack(this_data).astype(np.float32))
+    X+=this_data
     
     # progress
     checklen=len(X)
@@ -115,7 +115,7 @@ assert len(Y)==len(X)
 
 # saving
 # TODO, integrate config into agent? or something similar
-note='0330_quick'
+note='0331'
 with open('data/{}_{}'.format(agent_name, note), 'wb+') as f:
     pickle.dump((X, Y), f)
 
@@ -123,5 +123,10 @@ from notification import notify
 notify()
 
 
-    
+
+
+
+
+
+
 

@@ -6,6 +6,7 @@ from numpy import pi
 
 class Config:
     def __init__(self):
+
         # timeout
         self.timeout=500 # timesteps
 
@@ -17,8 +18,8 @@ class Config:
         self.force_mag_range = [1,100]#10.0
         self.tau=0.02
         # -------------- param sampling ----------------------
-        self.reso = 3
-        self.sample_method='log'
+        self.reso = 10
+        self.sample_method='liner'
 
         # fixed
         self.gravity = 9.8

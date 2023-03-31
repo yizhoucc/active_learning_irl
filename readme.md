@@ -1,8 +1,9 @@
 # todo
 
-- randomize the parameters for agent family training
-- set a timeout
-- make it harder? train and see it first.
+- allow different phi and theta. eg, phi varys by gravity, but theta varys by cost.
+- potential new task if this is not working.
+
+
 
 # data format
 

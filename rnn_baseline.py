@@ -6,8 +6,8 @@ import torch.nn as nn
 from matplotlib import pyplot as plt
 
 
-note = '0329test'
-agent_name = 'ppo_baseline0328'
+note = 'linear_0331'
+agent_name = 'ppo_baseline_0331_linear'
 with open('data/{}_{}'.format(agent_name, note), 'rb') as f:
     x_data, ys = pickle.load(f)
 y_data = [torch.tensor(y).view(-1) for y in ys]
@@ -15,7 +15,8 @@ y_data = [torch.tensor(y).view(-1) for y in ys]
 # use a small subset for testing
 # x_data, y_data = x_data[:100], y_data[:100]
 
-y_data = torch.stack(y_data)
+y_data = torch.stack(y_data)[:,[3,8]]
+
 
 
 # Find the maximum length of your time series data
@@ -27,8 +28,8 @@ padded_data = pad_sequence(x_data, batch_first=True, padding_value=0)
 padded_data.shape  # ntrial, ts, input feature
 
 ################# normalize
-x_data[0].shape
-plt.hist(x_data[0][:,4])
+# x_data[0].shape
+# plt.hist(x_data[0][:,4])
 
 # means = torch.mean(input_data, dim=0)
 # stds = torch.std(input_data, dim=0)
@@ -88,11 +89,13 @@ class GRUNet(nn.Module):
         return out, h
 
 
+
+
 model = GRUNet(input_size=input_size, hidden_size=hidden_size,
-               num_layers=num_layers, output_size=10)
+               num_layers=num_layers, output_size=2)
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-num_epochs = 1
+num_epochs = 10
 
 for epoch in range(num_epochs):
     model.train()
@@ -104,7 +107,6 @@ for epoch in range(num_epochs):
         loss.backward(retain_graph=True)
         optimizer.step()
 
-
     # eval
     val_loss = 0.0
     total = 0
@@ -113,26 +115,30 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for inputs, targets in val_loader:
             outputs, hidden = model(inputs.float(), None)
-            val_loss += criterion(outputs, outputs.float())
+            val_loss += criterion(outputs, targets)
             total += targets.size(0)
-
+            print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
+            plt.scatter(outputs[:,1],targets[:,1])
+    plt.axis('equal')
+    plt.show()
     avg_val_loss = val_loss / len(val_loader)
     print(
         f"Epoch {epoch+1}: Train Loss = {loss:.4f}, Val Loss = {avg_val_loss:.4f}")
     
-######################
+    # test
+    val_loss = 0.0
+    total = 0
+    model.eval()
 
-from matplotlib import pyplot as plt
-plt.plot(pred.clone().detach().T)
-plt.show()
-plt.plot(y_data[::10].T)
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            outputs, hidden = model(inputs.float(), None)
+            val_loss += criterion(outputs, targets)
+            total += targets.size(0)
+            print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
+            plt.scatter(outputs[:,1],targets[:,1])
+    plt.axis('equal')
+    plt.show()
+    
 
-x_data[0].shape
 
-plt.hist(x_data[0][:,4])
-
-
-means = torch.mean(input_data, dim=0)
-stds = torch.std(input_data, dim=0)
-
-normalized = (input_data - means) / stds
