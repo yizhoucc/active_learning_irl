@@ -28,7 +28,7 @@ class CartPoleEnv(gym.Env):
         self.x_threshold = 2.4
 
         high=np.inf
-        self.action_space = spaces.Discrete(2)
+        self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(low=-high, high=high, shape=(11,), dtype=np.float32)
 
         self.seed()
@@ -49,7 +49,13 @@ class CartPoleEnv(gym.Env):
         assert self.action_space.contains(action), err_msg
 
         x, x_dot, theta, theta_dot = self.state
-        force = self.force_mag if action == 1 else -self.force_mag
+        
+        if action == 2:
+            force = self.force_mag 
+        elif action==0:
+            force=-self.force_mag
+        else:
+            force=0
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
 
@@ -99,7 +105,7 @@ class CartPoleEnv(gym.Env):
                     "True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
-            reward = -0.01
+            reward = -1*abs(force)*0.1
 
         return np.hstack([self.state, self._gravity, self._masscart, self._masspole, self._total_mass, self._length, self._polemass_length, self._force_mag]).astype(np.float32), reward, done, {}
 

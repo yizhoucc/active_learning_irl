@@ -24,5 +24,5 @@ for _ in range(200):
         env.close()
         print('keep up time', episode_length)
 
-model.save("trained_agent/ppo_baseline0328v2") 
+model.save("trained_agent/ppo_baseline_0330") 
 # TODO, save the config with the model into one file.
