@@ -6,7 +6,7 @@ import torch.nn as nn
 from matplotlib import pyplot as plt
 
 
-note = 'linear_0331'
+note = '0331'
 agent_name = 'ppo_baseline_0331_linear'
 with open('data/{}_{}'.format(agent_name, note), 'rb') as f:
     x_data, ys = pickle.load(f)
@@ -15,7 +15,7 @@ y_data = [torch.tensor(y).view(-1) for y in ys]
 # use a small subset for testing
 # x_data, y_data = x_data[:100], y_data[:100]
 
-y_data = torch.stack(y_data)[:,[3,8]]
+y_data = torch.stack(y_data)[:,[3]]
 
 
 
@@ -67,9 +67,8 @@ test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
 
 input_size = padded_data.shape[2]
 num_layers = 2
-hidden_size = 16
-num_classes = 15*15
-
+hidden_size = 32
+output_size=y_data[0].shape[0]
 
 
 class GRUNet(nn.Module):
@@ -92,9 +91,9 @@ class GRUNet(nn.Module):
 
 
 model = GRUNet(input_size=input_size, hidden_size=hidden_size,
-               num_layers=num_layers, output_size=2)
+               num_layers=num_layers, output_size=output_size)
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 num_epochs = 10
 
 for epoch in range(num_epochs):
@@ -118,7 +117,7 @@ for epoch in range(num_epochs):
             val_loss += criterion(outputs, targets)
             total += targets.size(0)
             print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
-            plt.scatter(outputs[:,1],targets[:,1])
+            plt.scatter(outputs[:,0],targets[:,0], alpha=0.1)
     plt.axis('equal')
     plt.show()
     avg_val_loss = val_loss / len(val_loader)
@@ -136,7 +135,7 @@ for epoch in range(num_epochs):
             val_loss += criterion(outputs, targets)
             total += targets.size(0)
             print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
-            plt.scatter(outputs[:,1],targets[:,1])
+            plt.scatter(outputs[:,0],targets[:,0], alpha=0.1)
     plt.axis('equal')
     plt.show()
     

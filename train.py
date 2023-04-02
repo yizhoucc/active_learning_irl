@@ -8,7 +8,7 @@ env = cartpole.CartPoleEnv()
 model = PPO("MlpPolicy", env, verbose=0)
 
 
-for _ in range(200):
+for _ in range(300):
     # learn
     model.learn(total_timesteps=int(1e4))
     # eval
@@ -24,5 +24,7 @@ for _ in range(200):
         env.close()
         print('keep up time', episode_length)
 
-model.save("trained_agent/ppo_baseline_0331_linear") 
+model.save("trained_agent/ppo_baseline_0331_5cost") 
 # TODO, save the config with the model into one file.
+from notification import notify
+notify()

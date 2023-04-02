@@ -29,7 +29,7 @@ class CartPoleEnv(gym.Env):
 
         high=np.inf
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(low=-high, high=high, shape=(11,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-high, high=high, shape=(12,), dtype=np.float32)
 
         self.seed()
         self.viewer = None
@@ -105,9 +105,9 @@ class CartPoleEnv(gym.Env):
                     "True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
-            reward = -1*abs(force)*0.1
+            reward = -1*abs(force)*self.cost
 
-        return np.hstack([self.state, self._gravity, self._masscart, self._masspole, self._total_mass, self._length, self._polemass_length, self._force_mag]).astype(np.float32), reward, done, {}
+        return np.hstack([self.state, self._gravity, self._masscart, self._masspole, self._total_mass, self._length, self._polemass_length, self._force_mag, self._cost]).astype(np.float32), reward, done, {}
 
     def random_params(self):
         # resolution and sample method (log or not)
@@ -127,20 +127,22 @@ class CartPoleEnv(gym.Env):
         masspoles= backwardfn(np.linspace(self.config.masspole_range[0], forwardfn(self.config.masspole_range[1]), reso))
         lengths= backwardfn(np.linspace(self.config.length_range[0], forwardfn(self.config.length_range[1]), reso))
         force_mags= backwardfn(np.linspace(self.config.force_mag_range[0], forwardfn(self.config.force_mag_range[1]), reso))
+        costs= backwardfn(np.linspace(self.config.cost_range[0], forwardfn(self.config.cost_range[1]), reso))
 
         gravity= np.random.choice(gravitys) if self.config.gravity is None else self.config.gravity
         masscart= np.random.choice(masscarts) if self.config.masscart is None else self.config.masscart
         masspole= np.random.choice(masspoles) if self.config.masspole is None else self.config.masspole
         length= np.random.choice(lengths) if self.config.length is None else self.config.length
-        force_mag= np.random.choice(force_mags) if self.config.force_mag is None else self.config.force_mag
+        force_mag= np.random.choice(force_mags) if self.config.force_mag is None else self.config.force_mag     
+        cost= np.random.choice(costs) if self.config.cost is None else self.config.cost
 
-        return gravity,masscart,masspole,length,force_mag
+        return gravity,masscart,masspole,length,force_mag,cost
 
     def reset(self,phi=None,theta=None):
 
         # if not provide task conf, apply that
         if phi is None:
-            gravity,masscart,masspole,length,force_mag=self.random_params()
+            gravity,masscart,masspole,length,force_mag,cost=self.random_params()
             self.gravity = gravity
             self.masscart = masscart
             self.masspole = masspole
@@ -148,6 +150,7 @@ class CartPoleEnv(gym.Env):
             self.length = length  # actually half the pole's length
             self.polemass_length = self.masspole * self.length
             self.force_mag = force_mag
+            self.cost=cost
         else:
             self.gravity = phi[0]
             self.masscart = phi[1]
@@ -156,7 +159,7 @@ class CartPoleEnv(gym.Env):
             self.length = phi[3]
             self.polemass_length = self.masspole * self.length
             self.force_mag = phi[4]
-
+            self.cost=phi[5]
         # if not provide assumption, assumption is the true config. eg, when training.
         if theta is None:
             self._gravity = gravity
@@ -166,6 +169,7 @@ class CartPoleEnv(gym.Env):
             self._length = length  # actually half the pole's length
             self._polemass_length = self._masspole * self._length
             self._force_mag = force_mag
+            self._cost=cost
         else:
             self._gravity = theta[0]
             self._masscart = theta[1]
@@ -174,12 +178,13 @@ class CartPoleEnv(gym.Env):
             self._length = theta[3]
             self._polemass_length = self._masspole * self._length
             self._force_mag = theta[4]
+            self._cost=cost=theta[5]
 
         self.t=0
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         
-        return np.hstack([self.state, self._gravity, self._masscart, self._masspole, self._total_mass, self._length, self._polemass_length, self._force_mag]).astype(np.float32)
+        return np.hstack([self.state, self._gravity, self._masscart, self._masspole, self._total_mass, self._length, self._polemass_length, self._force_mag,self._cost]).astype(np.float32)
 
     def render(self, mode="human"):
         screen_width = 600
