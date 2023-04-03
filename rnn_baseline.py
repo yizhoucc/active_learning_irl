@@ -4,10 +4,11 @@ from torch.utils.data import TensorDataset, DataLoader
 import torch
 import torch.nn as nn
 from matplotlib import pyplot as plt
+from notification import notify
 
 
-note = '0331'
-agent_name = 'ppo_baseline_0331_linear'
+note = 'data'
+agent_name = 'ppo_baseline_0331_5cost'
 with open('data/{}_{}'.format(agent_name, note), 'rb') as f:
     x_data, ys = pickle.load(f)
 y_data = [torch.tensor(y).view(-1) for y in ys]
@@ -15,7 +16,9 @@ y_data = [torch.tensor(y).view(-1) for y in ys]
 # use a small subset for testing
 # x_data, y_data = x_data[:100], y_data[:100]
 
-y_data = torch.stack(y_data)[:,[3]]
+y_data = torch.stack(y_data)
+y_data=y_data[:,[3,9,11]]
+y_data=y_data/(torch.max(y_data,axis=0)[0])
 
 
 
@@ -94,7 +97,7 @@ model = GRUNet(input_size=input_size, hidden_size=hidden_size,
                num_layers=num_layers, output_size=output_size)
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-num_epochs = 10
+num_epochs = 30
 
 for epoch in range(num_epochs):
     model.train()
@@ -134,10 +137,37 @@ for epoch in range(num_epochs):
             outputs, hidden = model(inputs.float(), None)
             val_loss += criterion(outputs, targets)
             total += targets.size(0)
-            print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
             plt.scatter(outputs[:,0],targets[:,0], alpha=0.1)
     plt.axis('equal')
+    plt.title('phi length')
     plt.show()
-    
 
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            outputs, hidden = model(inputs.float(), None)
+            val_loss += criterion(outputs, targets)
+            total += targets.size(0)
+            # print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
+            plt.scatter(outputs[:,1],targets[:,1], alpha=0.1)
+    plt.axis('equal')
+    plt.title('theta length')
+    plt.show()
 
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            outputs, hidden = model(inputs.float(), None)
+            val_loss += criterion(outputs, targets)
+            total += targets.size(0)
+            # print(torch.mean(abs((outputs**2 - targets**2))**0.5,axis=0))
+            plt.scatter(outputs[:,2],targets[:,2], alpha=0.1)
+    plt.axis('equal')
+    plt.title('theta cost')
+    plt.show()
+
+    notify()
+
+torch.save({
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    'loss_fn': criterion
+}, 'data/{}_{}.pt'.format(agent_name, note))

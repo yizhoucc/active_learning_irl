@@ -1185,51 +1185,6 @@ def percentile_err(data, percentile=95):
     return res
 
 
-def theta_bar(finaltheta, finalcov=None, xlabels=theta_names, err=None, ax=None, label=None, shift=0, width=0.5, color=None):
-    if finalcov is None:
-        err = None
-    else:
-        err = torch.diag(finalcov)**0.5 if err is None else err
-    with initiate_plot(10, 3, 300) as fig, warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        if ax is None:
-            ax = fig.add_subplot(111)
-        # Create bars and choose color
-        if type(finaltheta) is torch.tensor:
-            ax.bar([i+shift for i in range(len(finaltheta))],
-                   finaltheta.view(-1), width, yerr=err, label=label, color=color)
-        else:
-            ax.bar([i+shift for i in range(len(finaltheta))],
-                   finaltheta.reshape(-1), width, yerr=err, label=label, color=color)
-        # title and axis names
-        ax.set_ylabel('inferred parameter value')
-        ax.set_xticks([i for i in range(len(xlabels))])
-        ax.set_xticklabels(xlabels, rotation=45, ha='right')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.legend()
-    return ax
-
-
-def firstevector_bar(finaltheta, xlabels=theta_names, ax=None, label=None, shift=0, width=0.5):
-
-    with initiate_plot(6, 4, 300) as fig, warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        if ax is None:
-            ax = fig.add_subplot(111)
-        # Create bars and choose color
-        ax.bar([i+shift for i in range(len(xlabels))],
-               finaltheta, width, label=label)
-        # title and axis names
-        ax.set_ylabel('most constrained eigen vector parameter value')
-        ax.set_xticks([i for i in range(len(xlabels))])
-        ax.set_xticklabels(xlabels, rotation=45, ha='right')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.legend()
-    return ax
-
-
 def thetaconfhist(finalcov):
     with initiate_plot(3.8, 1.8, 300) as fig, warnings.catch_warnings():
         warnings.simplefilter('ignore')
@@ -1720,3 +1675,20 @@ def f_importances(coef, names):
 def relu(arr):
     arr[arr < 0] = 0
     return arr
+
+
+
+def getBack(var_grad_fn):
+    print(var_grad_fn)
+    for n in var_grad_fn.next_functions:
+        if n[0]:
+            try:
+                tensor = getattr(n[0], 'variable')
+                print(n[0])
+                print('Tensor with grad found:', tensor)
+                print(' - gradient:', tensor.grad)
+                print()
+            except AttributeError as e:
+                getBack(n[0])
+                
+

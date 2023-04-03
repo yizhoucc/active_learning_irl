@@ -1,8 +1,11 @@
 # todo
 
-- allow different phi and theta. eg, phi varys by gravity, but theta varys by cost.
 - potential new task if this is not working.
 
+# current res
+rrn baseline: good. cost doesnt matter but cost makes theta length matter
+
+rnn prob: not good.
 
 
 # data format
