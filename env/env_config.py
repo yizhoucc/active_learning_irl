@@ -8,7 +8,7 @@ class Config:
     def __init__(self):
 
         # timeout
-        self.timeout=500 # timesteps
+        self.timeout=50 # timesteps
 
         # -------------- param range ---------------------------
         self.gravity_range = [1,100]#9.8,

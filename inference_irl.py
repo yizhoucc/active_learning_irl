@@ -6,11 +6,34 @@ from env import cartpole
 from stable_baselines3 import PPO
 from pathlib import Path
 from plot_ult import *
-
+import pickle
+from torch.nn.utils.rnn import pad_sequence
 
 note = 'data'
 agent_name = 'ppo_baseline_0331_5cost'
 pt=torch.load('data/{}_{}.pt'.format(agent_name, note))
+
+
+with open('data/{}_{}'.format(agent_name, note), 'rb') as f:
+    x_data, ys = pickle.load(f)
+y_data = [torch.tensor(y).view(-1) for y in ys]
+
+# use a small subset for testing
+# x_data, y_data = x_data[:100], y_data[:100]
+
+y_data = torch.stack(y_data)
+y_data=y_data[:,[3,9,11]]
+y_data=y_data/(torch.max(y_data,axis=0)[0])
+
+
+
+# Find the maximum length of your time series data
+max_length = max([len(d) for d in x_data])
+
+# Pad your time series data with zeros at the front
+x_data = [torch.tensor(x) for x in x_data]
+padded_data = pad_sequence(x_data, batch_first=True, padding_value=0)
+padded_data.shape  # ntrial, ts, input feature
 
 
 
@@ -90,8 +113,8 @@ for _ in range(10):
     plt.scatter(pred[0,1], pred[0,0], label='infer', color='r')
     plt.scatter(theta[3]/10, phi[3]/10, label='ground truth', color='k')    
     # plt.axis('equal')
-    plt.xlim(0,1)
-    plt.ylim(0,1)
+    plt.xlim(-0.1,1.1)
+    plt.ylim(-0.1,1.1)
     quickleg(plt.gca(), bbox_to_anchor=(1,0))
     quickspine(plt.gca())
     plt.xlabel('theta')

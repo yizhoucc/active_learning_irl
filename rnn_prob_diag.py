@@ -10,7 +10,7 @@ from numpy import pi
 from plot_ult import *
 
 datanote = 'data'
-testnote='probclip'
+testnote='probclipdiag'
 agent_name = 'ppo_baseline_0331_5cost'
 with open('data/{}_{}'.format(agent_name, datanote), 'rb') as f:
     x_data, ys = pickle.load(f)
@@ -76,7 +76,7 @@ test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size)
 input_size = padded_data.shape[2]
 num_layers = 2
 hidden_size = 32
-output_size=int(y_data[0].shape[0]+((1+y_data[0].shape[0])*y_data[0].shape[0])/2)
+output_size=int(y_data[0].shape[0]*2)
 
 ######################
     
@@ -112,27 +112,10 @@ def gaussian(mu, cov):
 
 def likelihoodloss(pred, target, ndim=2):
     mus=pred[:,:ndim]
-    predlower=pred[:,ndim:] # 10,6
-
-    predcho=[]
-    for lower in predlower:
-        # reshape the lower tril vector into matrix
-        cho=torch.zeros(ndim,ndim)
-        j=0
-        for i in range(ndim):
-            cho[i,:i+1]=lower[j:j+i+1]
-            j+=1
-            j+=i
-        for i in range(ndim):
-            cho[i,i+1:]=cho[i+1:,i]
-        predcho.append(cho)
-
+    predlower=pred[:,ndim:2*ndim]
+    predcho=[(torch.diag(torch.exp(diag))) for diag in predlower]
     predcho=torch.stack(predcho)
-    cholesky_lower_triangular = torch.tril(predcho, diagonal = -1)
-    cholesky_diag=torch.stack([torch.diag_embed(torch.diag(torch.exp(p))) for p in predcho])
-    cholesky_sigmas =  cholesky_diag + cholesky_lower_triangular
-
-    p=torch.distributions.multivariate_normal.MultivariateNormal(mus,scale_tril=cholesky_sigmas)
+    p=torch.distributions.multivariate_normal.MultivariateNormal(mus,scale_tril=predcho)
     # genloss=-torch.mean(p.log_prob(target))
     genloss=-torch.mean(torch.clip(p.log_prob(target),-10,3))
     mseloss=torch.mean((mus-target)**2)
@@ -218,8 +201,7 @@ for epoch in range(num_epochs):
 
     with initiate_plot(3,3,200) as fig:
         ax1=fig.add_subplot(111)
-        covs=getcov(outputs)
-        covs=[c[:2,:2] for c in covs]
+        covs=[torch.diag(torch.exp(diag)) for diag in outputs[:,2:]]
         for mu, cov in zip(outputs, covs):
             plot_cov_ellipse(cov,[mu[0], mu[1]],ax=ax1,alpha=0.1)
         ax1.scatter(targets[:,0],targets[:,1])
