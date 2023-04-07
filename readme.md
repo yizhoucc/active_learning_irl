@@ -1,5 +1,4 @@
 # todo
-
 - potential new task if this is not working.
 
 # current res
@@ -7,10 +6,59 @@ rrn baseline: good. cost doesnt matter but cost makes theta length matter
 
 rnn prob: not good.
 
+# proposal
 
-# data format
+## intro
+background
+based on the idea of inverse rational control.
+inverse rational control is a subset of inverse reinforcement learning, where we assume the subject or agnet to be suboptimal but still rational.
+generally, the suboptimality comes from wrong assumptions of the actual task dynamics and control preferrences.
+it can also comes from biological limitations such as represetnation and computation cost, so far we havent model that in the current version of irc.
+comparing to the other irl methods, irc has 3 benifits in neuroscience/cognition field.
+1, we do not assume subjects to be near optimal. instead, we assume they are rational and have individual differences.
+2, irc infers latent assumption, instead of a hard to inteprate reward function and policy.
+3, irc handels complex problems, whereas some inverse optimal control methods achieves 1 and 2 but can only be applied to simple problems.
 
-## collected simulation data
+goal that we try to achieve.
+however, limitations exist.
+first, irc relies on solving the pomdp in the reverse order, which often involves sampling and marginalization.
+the inverse model is not pre exposed to the samples, and we have to do this for each piece of data to evaulate the likelihood.
+this brings up efficiency concerns.
+second, the irc needs quite a lot of data to startin running.
+for one trial data, we wont be able update our theta estimation in a meaningful way.
+this is near random exploration.
+
+proposed way.
+here i propose a potential upgrade to solve these 2 problems.
+i believe the fundamental problems is the sampling.
+we use the likelihood function and the current actual data to check if the current theta estimation reproduces samples that are similar to the actual data.
+in other words, sharing similar pattern.
+if we have a model that learns the pattern of this theta estimation ahead of time, we can direclty evaluate the likelihood without doing more samples.
+importantly, we will be able to select the best task to better infer the theta.
+if there exists such a model that takes the trajectory time series input and output to inferred theta, the model should twist the hidden representation of the trajectory manifold into a uniform grid theta and phi, and there exists a recurrent submodel that holds a represetntaion of the times series.
+using this submodel, we can embed the trial data, and calculate the information content of theta offered by a task phi.
+selecting a max information task phi could potentially accerate the irc.
+if we think the inverse problem as a learning problem.
+we will find the subject is the enviorment and experimenters are the agent, trying to build a subject model (like the world model in dreamer rl) from the interactions.
+most previous methods assume the data is precollected, in the replay buffer, so its like the agent is passively learning not actively explore in this setup.
+however, we know that from rl, once the agent develops some kind of inaccurate imaginary world model, active learning is almost a must to learn efficiently.
+here, i believe for this inverse problem, we are not start from scratch, and active learning can greatly accerate things.
+in summary of this new approach, we use the network inference as inverse (likelihood funciton) and update the estimation of theta (baysien optimization), and solve a smaller optimization problem to select the best phi in terms of information. we to thsese two steps iteratively till converge.
+
+
+# methods
+
+## task
+
+## 
+
+
+
+
+
+## data format
+
+### collected simulation data
 we call task config param vector as phi, agent assumed param vector as theta.
 there are x params, and each has r resolution (samples).
 so, we have r^x for phi, and same for theta.

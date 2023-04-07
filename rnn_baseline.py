@@ -106,6 +106,7 @@ for epoch in range(num_epochs):
 
         optimizer.zero_grad()
         loss = criterion(pred, y_batch)
+        torch.nn.utils.clip_gradnorm(model.parameters(), 5)
         loss.backward(retain_graph=True)
         optimizer.step()
 
