@@ -10,7 +10,7 @@ from numpy import pi
 from plot_ult import *
 
 datanote = 'data'
-testnote='probclipdiag'
+testnote='gradclipdiag'
 agent_name = 'ppo_baseline_0331_5cost'
 with open('data/{}_{}'.format(agent_name, datanote), 'rb') as f:
     x_data, ys = pickle.load(f)
@@ -139,6 +139,11 @@ for epoch in range(num_epochs):
             optimizer.zero_grad()
             loss = criterion(pred, y_batch)
             loss.backward(retain_graph=True)
+
+            # added 0410, grad clip
+            max_norm = 5.0 # Example value for maximum norm
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+        
             optimizer.step()
 
     # eval
@@ -198,7 +203,6 @@ for epoch in range(num_epochs):
                 ax2.scatter(outputs[:,1],targets[:,1], alpha=0.1)
                 # ax3.scatter(outputs[:,2],targets[:,2], alpha=0.1)
 
-
     with initiate_plot(3,3,200) as fig:
         ax1=fig.add_subplot(111)
         covs=[torch.diag(torch.exp(diag)) for diag in outputs[:,2:]]
@@ -210,13 +214,11 @@ for epoch in range(num_epochs):
         ax1.set_xlim(-2,2)
         ax1.set_ylim(-2,2)
 
-
-
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss_fn': criterion
-    }, 'data/{}_{}_{}.pt'.format(agent_name, datanote,testnote))
+    }, 'data/{}_{}_{}.pt'.format(agent_name, datanote, testnote))
 
 
 

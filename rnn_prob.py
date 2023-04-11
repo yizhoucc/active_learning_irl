@@ -10,14 +10,14 @@ from numpy import pi
 from plot_ult import *
 
 datanote = 'data'
-testnote='probclip'
+testnote='gradclip'
 agent_name = 'ppo_baseline_0331_5cost'
 with open('data/{}_{}'.format(agent_name, datanote), 'rb') as f:
     x_data, ys = pickle.load(f)
 y_data = [torch.tensor(y).view(-1) for y in ys]
 
-x_data=x_data[:1000]
-y_data=y_data[:1000]
+# x_data=x_data[:1000]
+# y_data=y_data[:1000]
 # use a small subset for testing
 # x_data, y_data = x_data[:100], y_data[:100]
 
@@ -156,6 +156,11 @@ for epoch in range(num_epochs):
             optimizer.zero_grad()
             loss = criterion(pred, y_batch)
             loss.backward(retain_graph=True)
+
+            # added 0410, grad clip
+            max_norm = 5.0 # Example value for maximum norm
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+
             optimizer.step()
 
     # eval
@@ -241,4 +246,3 @@ for epoch in range(num_epochs):
 
 
 
-    

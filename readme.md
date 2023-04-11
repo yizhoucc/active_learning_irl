@@ -48,6 +48,10 @@ in summary of this new approach, we use the network inference as inverse (likeli
 
 # methods
 
+## overall arch
+
+$$ F(T_{\theta, \phi}) = P(\theta) $$
+
 ## task
 
 ## 
