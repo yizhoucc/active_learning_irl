@@ -101,6 +101,7 @@ since update is Baysien, the likelihood $p(\theta|T_{\theta,\phi_i})$ is the new
 because $p(\theta|T_{\theta,\phi_i})$ is modeled to be gaussian, we can take the fisher information as approximation by
 
 $$ J(\theta) = -\nabla \nabla \ell(\theta \mid T_{\theta,\phi_i}) $$
+
 $$ J(\theta) = 1/-log(p(\theta|T_{\theta,\phi_i}))$$
 
 where $p(\theta|T_{\theta,\phi_i})$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
