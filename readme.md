@@ -72,10 +72,12 @@ $$argmin KL( p(\theta^*) || q(\theta |T_{\theta,\phi}, \phi) )$$
 
 $$argmin KL( p(\theta^*) || F(T_{\theta,\phi}, \phi) )$$
 
-since in this case the $p(\theta^*)$ is a delta distribution, instead of using KL divergence we just evaluate the probabiliy of $\theta^*$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
+since in this case the $p(\theta)$ is a delta distribution, instead of using KL divergence we just evaluate the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
 
+$$ p(\hat{\theta} = \theta^*) $$
 
-
+$$ p(\theta^* | \mu_{\theta}, \Sigma_{\theta}) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (x-\mu_{\theta})\right)
+ $$
 
 ## task
 
