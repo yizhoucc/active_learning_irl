@@ -72,12 +72,41 @@ $$argmin KL( p(\theta^*) || q(\theta |T_{\theta,\phi}, \phi) )$$
 
 $$argmin KL( p(\theta^*) || F(T_{\theta,\phi}, \phi) )$$
 
-since in this case the $p(\theta)$ is a delta distribution, instead of using KL divergence we just evaluate the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
+since in this case the $p(\theta)$ is a delta distribution, instead of using KL divergence we just maximize the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
 
 $$ p(\hat{\theta} = \theta^*) $$
 
 $$ p(\theta^* | \mu_{\theta}, \Sigma_{\theta}) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (x-\mu_{\theta})\right)
  $$
+
+minimizing the negative probabiliy yields the trained function $F$.
+
+explain:
+the idea is really like the variational autoencoder.
+the input is the trajectories $T$, and the latent variable is the $\theta$.
+in this case, we do not have to reconstruct to the oringal input because we known the latent space already.
+we know exactly $p(\theta)$ and $p(T|\theta)$
+so, instead of training for reconstruction, we train the "encoder" part directly.
+here we do have both encoder and decoding by naming.
+the encoder here refers to the recurrent hidden states embedding of the time series data, and the decoder here refers to the read out layers from the trajectory representation vector to the output.
+
+## part 2, active IRC
+
+the goal of the active IRC is to select $\phi_i \sim \Phi$ such that $I(\theta;T_{\theta,\phi_i})$ is maxed.
+the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualte except from the discrete case, so we use the information gain instead.
+
+$$ GI = KL(p(\theta) || p(\theta|T_{\theta,\phi_i})p(T_{\theta,\phi_i})p(\theta) )$$
+
+since update is Baysien, the likelihood $p(\theta|T_{\theta,\phi_i})$ is the new information.
+because $p(\theta|T_{\theta,\phi_i})$ is modeled to be gaussian, we can take the fisher information as approximation by
+
+$$ J = 1/-log(\Simga_{\theta})$$
+
+where $\Simga_{\theta}$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
+here we can reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
+
+
+
 
 ## task
 
