@@ -59,8 +59,11 @@ in summary of this new approach, we use the network inference as inverse (likeli
 
 ## part 1, inference as inverse
 Let $F$ be a neural network, reverse function of POMDP, such that 
+
 $$ F(T_{\theta,\phi}, \phi) = Decoder(Encoder(T_{\theta,\phi},\phi)) = p(\theta) $$
+
 the output of the function F is in
+
 $$ \theta ~ N(\mu_{\theta}, \Sigma_{\theta}) $$
 
 
