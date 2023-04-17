@@ -145,6 +145,7 @@ transdreamer
 https://arxiv.org/pdf/2202.09481.pdf
 
 
+# supp
 
 ## data format
 
@@ -156,7 +157,7 @@ we have (r^x)^2 for all theta x phi combination.
 in this case, we have (15^3)^2 combinations, each has about 400 ts, each ts has about 15 dim, in total this is maxmimumly 2GB data. should be good.
 
 ## complexity analysis 
-```
+
         x, storage: reso*(2n) n is number of params
             this is the major limitation. large storage, complex increase in power order with nparameter increase.
             the previous pomdp likelihood appraoch, when nparam increase, problem complexity linearly.
@@ -168,7 +169,7 @@ in this case, we have (15^3)^2 combinations, each has about 400 ts, each ts has 
             computatio, in the worst case, we evaluate all theta, all phi, and calculate the gradient. but in practice, we can dynamically adjust the resolution of theta and phi. eg, given a theta, do something like a binsec, and got longer trials are better phi. from there, we can either random with the current knowledge, or continue binsec.
             to acc this, we can 1, process the data storage before hand, 2 keep some binsec point in menonry and other in storage, 
         
-```
+
 
 # other notes
 ```
