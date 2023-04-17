@@ -1,10 +1,13 @@
 # todo
 - potential new task if this is not working.
-
+- implement part 2
 # current res
 rrn baseline: good. cost doesnt matter but cost makes theta length matter
 
-rnn prob: not good.
+rnn prob: good, with gradient clip. 
+
+inferrence as inverse: good. need about 30 len trajectory and does one shot inverse.
+need some noise to make this slightly harder, but not too much harder for a demo task.
 
 # proposal
 
@@ -106,6 +109,13 @@ $$ J(\theta) = 1/-log(p(\theta|T_{\theta,\phi_i}))$$
 
 where $p(\theta|T_{\theta,\phi_i})$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
 here we can reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
+
+
+alternatives:
+
+discertize everything. F output to a softmax categorical theta. in finding phi step, with discrete we can calculate information directly. 
+the major con is too many output dim when we have many parameters.
+my feeling is when the model gets larger, we need a lot more data to train it. could be a problem.
 
 
 
