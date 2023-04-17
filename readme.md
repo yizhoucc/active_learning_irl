@@ -62,12 +62,10 @@ Let $F$ be a neural network, reverse function of POMDP, such that
 
 $$ F(T_{\theta,\phi}, \phi) = Decoder(Encoder(T_{\theta,\phi},\phi)) = p(\theta) $$
 
-the output of the function F is in
+the output of the function $F$ is in
 
-$$ \theta ~ N(\mu_{\theta}, \Sigma_{\theta}) $$
+$$ \theta \sim N(\mu_{\theta}, \Sigma_{\theta}) $$
 
-
-$$ F(T_{\theta, \phi}) = P(\theta) $$
 
 
 
