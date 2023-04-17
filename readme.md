@@ -46,17 +46,51 @@ here, i believe for this inverse problem, we are not start from scratch, and act
 in summary of this new approach, we use the network inference as inverse (likelihood funciton) and update the estimation of theta (baysien optimization), and solve a smaller optimization problem to select the best phi in terms of information. we to thsese two steps iteratively till converge.
 
 
+
 # methods
 
-## overall arch
+## notations
+
+- $*$ stands for actual data/ground truth data
+- $\hat{}$ stands for estimations
+- $\theta$  latent assumptions of the task
+- $\phi$ task configurations
+- $T$ time series trajectories data
+
+## part 1, inference as inverse
+Let $F$ be a neural network, reverse function of POMDP, such that 
+$$ F(T_{\theta,\phi}, \phi) = Decoder(Encoder(T_{\theta,\phi},\phi)) = p(\theta) $$
+the output of the function F is in
+$$ \theta ~ N(\mu_{\theta}, \Sigma_{\theta}) $$
+
 
 $$ F(T_{\theta, \phi}) = P(\theta) $$
 
+
+
 ## task
 
-## 
+demo task, cartpole
+
+## related work
+structed state space model. for long time series embedding
+https://srush.github.io/annotated-s4/#discrete-time-ssm-the-recurrent-representation
+https://www.youtube.com/watch?v=ugaT1uU89TA
+
+https://mp.weixin.qq.com/s/sTlUBXB-PVKI2l0HqRStSA
 
 
+deep active learning
+https://arxiv.org/pdf/2009.00236.pdf
+
+active irl
+https://arxiv.org/abs/2207.08645
+
+vae math
+https://davidstutz.de/the-mathematics-of-variational-auto-encoders/
+
+transdreamer
+https://arxiv.org/pdf/2202.09481.pdf
 
 
 
