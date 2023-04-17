@@ -100,9 +100,10 @@ $$ GI = KL(p(\theta) || p(\theta|T_{\theta,\phi_i})p(T_{\theta,\phi_i})p(\theta)
 since update is Baysien, the likelihood $p(\theta|T_{\theta,\phi_i})$ is the new information.
 because $p(\theta|T_{\theta,\phi_i})$ is modeled to be gaussian, we can take the fisher information as approximation by
 
-$$ J = 1/-log(\Simga_{\theta})$$
+$$ J(\theta) = -\nabla \nabla \ell(\theta \mid T_{\theta,\phi_i}) $$
+$$ J(\theta) = 1/-log(p(\theta|T_{\theta,\phi_i}))$$
 
-where $\Simga_{\theta}$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
+where $p(\theta|T_{\theta,\phi_i})$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
 here we can reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
 
 
