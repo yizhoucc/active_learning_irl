@@ -73,18 +73,19 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$argmin \;  KL(\;  p(\theta|\theta^*) \; ||\;  q(\theta |T_{\theta,\phi}, \phi) \; )$$
+$$argmin \;  KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  q(\theta \mid T_{\theta,\phi}, \phi) \; )$$
 
-$$argmin \;  KL(\;  p(\theta|\theta^*) \; ||\;  F(T_{\theta,\phi}, \phi) \; )$$
+$$argmin \;  KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  F(T_{\theta,\phi}, \phi) \; )$$
 
-usually we do not model $p(\theta|\theta^*)$. 
-instead, $p(\theta|\theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
+usually we do not model $p(\theta\mid \theta^*)$. 
+instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
 
-in this case, the $p(\theta|\theta^*)$ is a delta distribution, instead of using KL divergence we just maximize the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
+most of the time we just model the $p(\theta\mid \theta^*)$ to be a delta distribution.
+instead of using KL divergence we just maximize the probabiliy of $\theta^*$ in $p(\theta) = F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution $N(\mu_{\theta}, \Sigma_{\theta})$.
 
-$$ p(\theta = \theta^*) $$
+$$ p(\theta = \theta^*) =$$
 
-$$ p(\theta^* | \mu_{\theta}, \Sigma_{\theta}) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (mu_{\theta})-\mu_{\theta})\right)
+$$ p(\theta^* \mid  N(\mu_{\theta}, \Sigma_{\theta})) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (\theta^*-\mu_{\theta})\right)
  $$
 
 minimizing the negative log probabiliy over all $p(\theta^*)$ yields the trained function $F$.
@@ -93,7 +94,7 @@ explain:
 the idea is really like the variational autoencoder.
 the input is the trajectories $T$, and the latent variable is the $\theta$.
 in this case, we do not have to reconstruct to the oringal input because we known the latent space already.
-we know exactly $p(\theta)$ and $p(T|\theta)$
+we know exactly $p(\theta)$ and $p(T\mid \theta)$
 so, instead of training for reconstruction, we train the "encoder" part directly.
 here we do have both encoder and decoding by naming.
 the encoder here refers to the recurrent hidden states embedding of the time series data, and the decoder here refers to the read out layers from the trajectory representation vector to the output.
@@ -102,18 +103,20 @@ the encoder here refers to the recurrent hidden states embedding of the time ser
 
 the goal of the active IRC is to select $\phi_i \sim \Phi$ such that $I(\theta;T_{\theta,\phi_i})$ is maxed.
 the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualte except from the discrete case, so we use the information gain instead.
+the information gain is the KL divergence between the previous estimated agent hidden assumption given all previous data, $p(\theta\mid T_{\theta,\phi_i\; 0:t})$, and the updated estimation given the new trial data $(\theta\mid T_{\theta,\phi_i\; 0:t+1})$. 
+if the $T_t+1$ is independent from previous trial history $T_0:t$, then we have:
 
-$$ GI = KL(p(\theta) \; ||\;  p(\theta|T_{\theta,\phi_i})p(T_{\theta,\phi_i})p(\theta) )$$
+$$ GI = KL(p(\theta) \; \mid \mid \;  p(\theta\mid  T_{\theta,\phi_i\; 0:t}) \cdot p(\theta\mid  T_{\theta,\phi_i\; t+1}) )$$
 
-since update is Baysien, the likelihood $p(\theta|T_{\theta,\phi_i})$ is the new information.
-because $p(\theta|T_{\theta,\phi_i})$ is modeled to be gaussian, we can take the fisher information as approximation by
+since update follows Baysien, the likelihood $p(T_{\theta,\phi_i}\mid \theta)$ is the new information.
+the fisher information can be calculated by
 
-$$ J(\theta) = -\nabla \nabla \ell(\theta \mid T_{\theta,\phi_i}) $$
+$$ J(\theta) = -\nabla \nabla \ell(T_{\theta,\phi_i}\mid  \theta) $$
 
-$$ J(\theta) = 1/-log(p(\theta|T_{\theta,\phi_i}))$$
+where the $T_{\theta,\phi_i}\mid  \theta$ are the previously sampled trajectories, average over the $\theta$ range of interest.
+to calculate the derivative of log of trajectories, we use the embedding part of the trained function $F$ in part 1.
 
-where $p(\theta|T_{\theta,\phi_i})$ is the output of $F(T_{\theta,\phi_i}, \phi_i)$
-here we can reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
+here we can also reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
 
 
 alternatives:
@@ -132,7 +135,7 @@ a task should be:
 
 - (able to inverse $\theta$) give some task configuration $\phi_i$, different agent assumtpion $\theta$ should produce different trajectory $T$.
 
-- (able to differentiate good vs bad task $\phi$) some task configuration $\phi_i$ provide much better information of $\theta$ than $\phi_j$. for example, $p(T_{\phi_i, \theta}|\theta)$ is much wider (trajectories are different) than $p(T_{\phi_j, \theta}|\theta)$ (trajectories are very similar, hard to tell apart or even identical). 
+- (able to differentiate good vs bad task $\phi$) some task configuration $\phi_i$ provide much better information of $\theta$ than $\phi_j$. for example, $p(T_{\phi_i, \theta}\mid \theta)$ is much wider (trajectories are different) than $p(T_{\phi_j, \theta}\mid \theta)$ (trajectories are very similar, hard to tell apart or even identical). 
 in other words, we want: at least on some condition such as  $\phi_i$ we can infer $\theta$ (with low uncertainty), and with some other $\phi_j$ we cannot infer $\theta$ (or infer with high uncertainty).
 
 the current cart pole vary length version is acceptable but not an ideal task.
@@ -185,9 +188,9 @@ in this case, we have (15^3)^2 combinations, each has about 400 ts, each ts has 
         the previous pomdp likelihood appraoch, when nparam increase, problem complexity linearly.
     backward function training: when reso is large, have to use linear readout
     inference for theta. best way is softamx or some other way to model the probability.
-    marginalize for phi: for all theta for all phi, find phi that a delta theta [000100] x abs(dervitative of tau | phi) is max. 
+    marginalize for phi: for all theta for all phi, find phi that a delta theta [000100] x abs(dervitative of tau \mid  phi) is max. 
         delta theta [000100], index one theta among all theta, to be weighted by current p(theta)
-        abs(dervitative of tau | phi). given a theta, now only theta affects tau. we can find the derivative of dtheta/dtau, meaning how much change in theta affact change in tau. here tau can be later layers of the network. in short, we find a phi that makes tau is most sensitive to theta change at a particular theta_estimation.
+        abs(dervitative of tau \mid  phi). given a theta, now only theta affects tau. we can find the derivative of dtheta/dtau, meaning how much change in theta affact change in tau. here tau can be later layers of the network. in short, we find a phi that makes tau is most sensitive to theta change at a particular theta_estimation.
         computatio, in the worst case, we evaluate all theta, all phi, and calculate the gradient. but in practice, we can dynamically adjust the resolution of theta and phi. eg, given a theta, do something like a binsec, and got longer trials are better phi. from there, we can either random with the current knowledge, or continue binsec.
         to acc this, we can 1, process the data storage before hand, 2 keep some binsec point in menonry and other in storage, 
 
