@@ -73,12 +73,17 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$argmin \;  KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  q(\theta \mid T_{\theta,\phi}, \phi) \; )$$
+$$argmin \;  \langle KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  q(\theta \mid T_{\theta^*,\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
 
-$$argmin \;  KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  F(T_{\theta,\phi}, \phi) \; )$$
+$$argmin \; \langle KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  F(T_{\theta^*,\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
 
 usually we do not model $p(\theta\mid \theta^*)$. 
 instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
+
+the objective function is to minimize the KL divergence of such $p(\theta \mid \theta^*)$ distribution (targets) and the network's predicted $p(\theta)$ distribution given the trajectories (input data). 
+the objective function averages over two things.
+first, it averages over the different samples of $T \mid \theta^*,\phi$.
+second, it averages over the entrire possible assumptions range, $\theta^* \sim \Theta$.
 
 most of the time we just model the $p(\theta\mid \theta^*)$ to be a delta distribution.
 instead of using KL divergence we just maximize the probabiliy of $\theta^*$ in $p(\theta) = F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution $N(\mu_{\theta}, \Sigma_{\theta})$.
@@ -118,6 +123,11 @@ to calculate the derivative of log of trajectories, we use the embedding part of
 
 here we can also reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
 
+efficiency concerns. this step requries solving an optimization problem that loops over the entire $\Theta, \Phi$ space.
+however, the trajectory embeddings can be pre calculated.
+maybe the fisher information can also be precalculated.
+we can also use something like binary search, for example, first decide between $\phi \sim \Phi_+$ and $\phi \sim \Phi_-$, then split either $\Phi_+$ or $\Phi_-$ into half to find a finer $\phi$.
+besides, the selected task will only be used for a small protion of the data to avoid subject adaptation, so it allows time for 'real time' best task selection.
 
 alternatives:
 
