@@ -1,6 +1,7 @@
 # todo
-- potential new task if this is not working.
+- potential new task if this is not working. see task section.
 - implement part 2
+
 # current res
 rrn baseline: good. cost doesnt matter but cost makes theta length matter
 
@@ -9,10 +10,11 @@ rnn prob: good, with gradient clip.
 inferrence as inverse: good. need about 30 len trajectory and does one shot inverse.
 need some noise to make this slightly harder, but not too much harder for a demo task.
 
+
 # proposal
 
 ## intro
-background
+### background
 based on the idea of inverse rational control.
 inverse rational control is a subset of inverse reinforcement learning, where we assume the subject or agnet to be suboptimal but still rational.
 generally, the suboptimality comes from wrong assumptions of the actual task dynamics and control preferrences.
@@ -22,7 +24,7 @@ comparing to the other irl methods, irc has 3 benifits in neuroscience/cognition
 2, irc infers latent assumption, instead of a hard to inteprate reward function and policy.
 3, irc handels complex problems, whereas some inverse optimal control methods achieves 1 and 2 but can only be applied to simple problems.
 
-goal that we try to achieve.
+### goal that we try to achieve.
 however, limitations exist.
 first, irc relies on solving the pomdp in the reverse order, which often involves sampling and marginalization.
 the inverse model is not pre exposed to the samples, and we have to do this for each piece of data to evaulate the likelihood.
@@ -31,7 +33,7 @@ second, the irc needs quite a lot of data to startin running.
 for one trial data, we wont be able update our theta estimation in a meaningful way.
 this is near random exploration.
 
-proposed way.
+### proposed way.
 here i propose a potential upgrade to solve these 2 problems.
 i believe the fundamental problems is the sampling.
 we use the likelihood function and the current actual data to check if the current theta estimation reproduces samples that are similar to the actual data.
@@ -54,7 +56,7 @@ in summary of this new approach, we use the network inference as inverse (likeli
 
 ## notations
 
-- $*$ stands for actual data/ground truth data
+- $^*$ stands for actual data/ground truth data
 - $\hat{}$ stands for estimations
 - $\theta$  latent assumptions of the task
 - $\phi$ task configurations
@@ -71,18 +73,21 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$argmin KL( p(\theta^*) || q(\theta |T_{\theta,\phi}, \phi) )$$
+$$argmin \;  KL(\;  p(\theta|\theta^*) \; ||\;  q(\theta |T_{\theta,\phi}, \phi) \; )$$
 
-$$argmin KL( p(\theta^*) || F(T_{\theta,\phi}, \phi) )$$
+$$argmin \;  KL(\;  p(\theta|\theta^*) \; ||\;  F(T_{\theta,\phi}, \phi) \; )$$
 
-since in this case the $p(\theta)$ is a delta distribution, instead of using KL divergence we just maximize the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
+usually we do not model $p(\theta|\theta^*)$. 
+instead, $p(\theta|\theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
 
-$$ p(\hat{\theta} = \theta^*) $$
+in this case, the $p(\theta|\theta^*)$ is a delta distribution, instead of using KL divergence we just maximize the probabiliy of $\theta$ in $F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution.
 
-$$ p(\theta^* | \mu_{\theta}, \Sigma_{\theta}) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (x-\mu_{\theta})\right)
+$$ p(\theta = \theta^*) $$
+
+$$ p(\theta^* | \mu_{\theta}, \Sigma_{\theta}) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (mu_{\theta})-\mu_{\theta})\right)
  $$
 
-minimizing the negative probabiliy yields the trained function $F$.
+minimizing the negative log probabiliy over all $p(\theta^*)$ yields the trained function $F$.
 
 explain:
 the idea is really like the variational autoencoder.
@@ -98,7 +103,7 @@ the encoder here refers to the recurrent hidden states embedding of the time ser
 the goal of the active IRC is to select $\phi_i \sim \Phi$ such that $I(\theta;T_{\theta,\phi_i})$ is maxed.
 the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualte except from the discrete case, so we use the information gain instead.
 
-$$ GI = KL(p(\theta) || p(\theta|T_{\theta,\phi_i})p(T_{\theta,\phi_i})p(\theta) )$$
+$$ GI = KL(p(\theta) \; ||\;  p(\theta|T_{\theta,\phi_i})p(T_{\theta,\phi_i})p(\theta) )$$
 
 since update is Baysien, the likelihood $p(\theta|T_{\theta,\phi_i})$ is the new information.
 because $p(\theta|T_{\theta,\phi_i})$ is modeled to be gaussian, we can take the fisher information as approximation by
@@ -121,6 +126,23 @@ my feeling is when the model gets larger, we need a lot more data to train it. c
 
 
 ## task
+
+we need these features to demostrate our part1 and part2.
+a task should be:
+
+- (able to inverse $\theta$) give some task configuration $\phi_i$, different agent assumtpion $\theta$ should produce different trajectory $T$.
+
+- (able to differentiate good vs bad task $\phi$) some task configuration $\phi_i$ provide much better information of $\theta$ than $\phi_j$. for example, $p(T_{\phi_i, \theta}|\theta)$ is much wider (trajectories are different) than $p(T_{\phi_j, \theta}|\theta)$ (trajectories are very similar, hard to tell apart or even identical). 
+in other words, we want: at least on some condition such as  $\phi_i$ we can infer $\theta$ (with low uncertainty), and with some other $\phi_j$ we cannot infer $\theta$ (or infer with high uncertainty).
+
+the current cart pole vary length version is acceptable but not an ideal task.
+it is acceptable because it satisfied 1, we can infer $\theta$ pretty well.
+however, for most $\phi$ we can infer $\theta$ with relatively small uncertainty. that means we cannot differentiate different good/bad $\phi$.
+
+
+
+
+
 
 demo task, cartpole
 
@@ -158,17 +180,17 @@ in this case, we have (15^3)^2 combinations, each has about 400 ts, each ts has 
 
 ## complexity analysis 
 
-        x, storage: reso*(2n) n is number of params
-            this is the major limitation. large storage, complex increase in power order with nparameter increase.
-            the previous pomdp likelihood appraoch, when nparam increase, problem complexity linearly.
-        backward function training: when reso is large, have to use linear readout
-        inference for theta. best way is softamx or some other way to model the probability.
-        marginalize for phi: for all theta for all phi, find phi that a delta theta [000100] x abs(dervitative of tau | phi) is max. 
-            delta theta [000100], index one theta among all theta, to be weighted by current p(theta)
-            abs(dervitative of tau | phi). given a theta, now only theta affects tau. we can find the derivative of dtheta/dtau, meaning how much change in theta affact change in tau. here tau can be later layers of the network. in short, we find a phi that makes tau is most sensitive to theta change at a particular theta_estimation.
-            computatio, in the worst case, we evaluate all theta, all phi, and calculate the gradient. but in practice, we can dynamically adjust the resolution of theta and phi. eg, given a theta, do something like a binsec, and got longer trials are better phi. from there, we can either random with the current knowledge, or continue binsec.
-            to acc this, we can 1, process the data storage before hand, 2 keep some binsec point in menonry and other in storage, 
-        
+    x, storage: reso*(2n) n is number of params
+        this is the major limitation. large storage, complex increase in power order with nparameter increase.
+        the previous pomdp likelihood appraoch, when nparam increase, problem complexity linearly.
+    backward function training: when reso is large, have to use linear readout
+    inference for theta. best way is softamx or some other way to model the probability.
+    marginalize for phi: for all theta for all phi, find phi that a delta theta [000100] x abs(dervitative of tau | phi) is max. 
+        delta theta [000100], index one theta among all theta, to be weighted by current p(theta)
+        abs(dervitative of tau | phi). given a theta, now only theta affects tau. we can find the derivative of dtheta/dtau, meaning how much change in theta affact change in tau. here tau can be later layers of the network. in short, we find a phi that makes tau is most sensitive to theta change at a particular theta_estimation.
+        computatio, in the worst case, we evaluate all theta, all phi, and calculate the gradient. but in practice, we can dynamically adjust the resolution of theta and phi. eg, given a theta, do something like a binsec, and got longer trials are better phi. from there, we can either random with the current knowledge, or continue binsec.
+        to acc this, we can 1, process the data storage before hand, 2 keep some binsec point in menonry and other in storage, 
+
 
 
 # other notes
