@@ -72,9 +72,9 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$ argmin \;  \langle{ KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  q(\theta \mid T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^*} $$
+$$ argmin \;  \langle{ KL(\;  p(\theta \mid \theta^{*}) \; \mid \mid \;  q(\theta \mid T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^{*}} $$
 
-$$ argmin \; \langle{ KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  F(T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^*} $$
+$$ argmin \; \langle{ KL(\;  p(\theta \mid \theta^{*}) \; \mid \mid \;  F(T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^{*}} $$
 
 usually we do not model $p(\theta\mid \theta^*)$. 
 instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
