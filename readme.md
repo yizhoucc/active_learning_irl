@@ -72,9 +72,9 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$ argmin \;  \langle KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  q(\theta \mid T_{\theta^{*},\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
+$$ argmin \;  \langle{ KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  q(\theta \mid T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^*} $$
 
-$$ argmin \; \langle KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  F(T_{\theta^{*},\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
+$$ argmin \; \langle{ KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  F(T_{\theta^{*},\phi}, \phi) \; )} \rangle_{T;\theta^*} $$
 
 usually we do not model $p(\theta\mid \theta^*)$. 
 instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
@@ -85,11 +85,11 @@ first, it averages over the different samples of $T \mid \theta^*,\phi$.
 second, it averages over the entrire possible assumptions range, $\theta^* \sim \Theta$.
 
 most of the time we just model the $p(\theta\mid \theta^*)$ to be a delta distribution.
-instead of using KL divergence we just maximize the probabiliy of $\theta^*$ in $p(\theta) = F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution $N(\mu_{\theta}, \Sigma_{\theta})$.
+instead of using KL divergence we just maximize the probabiliy of $\theta^*$ in $p(\theta) = F(T_{\theta,\phi}, \phi)$ which is a gaussian distribution $N({\mu}_{\theta}, {\Sigma}_{\theta})$.
 
 $$ p(\theta = \theta^*) =$$
 
-$$ p(\theta^* \mid  N(\mu_{\theta}, \Sigma_{\theta})) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^*-\mu_{\theta})^T \Sigma_{\theta}^{-1} (\theta^*-\mu_{\theta})\right)
+$$ p(\theta^* \mid  N(\mu_{\theta}, {\Sigma}_{\theta})) = \frac{1}{\sqrt{(2\pi)^n \det({\Sigma}_{\theta})}} \exp\left(-\frac{1}{2}(\theta^* - {\mu}_{\theta})^T {\Sigma}_{\theta}^{-1} (\theta^*-{\mu}_{\theta})\right)
  $$
 
 minimizing the negative log probabiliy over all $p(\theta^*)$ yields the trained function $F$.
