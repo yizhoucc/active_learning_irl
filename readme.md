@@ -117,10 +117,51 @@ the fisher information can be calculated by
 
 $$ J(\theta) = -\nabla \nabla \ell(T_{\theta,\phi_i}\mid  \theta) $$
 
-where the $T_{\theta,\phi_i}\mid  \theta$ are the previously sampled trajectories, average over the $\theta$ range of interest.
-to calculate the derivative of log of trajectories, we use the embedding part of the trained function $F$ in part 1.
+$$  = - \langle {\frac{d^2}{d^2\theta} \ell(T_{\theta,\phi_i}\mid  \theta)} \rangle_{T|\theta} $$
 
-here we can also reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
+$$  = - \langle{ \frac{d^2}{d^2\theta} \ell(T_{\phi_i}(\theta)) \rangle_{T|\theta}} $$
+
+where the $T_{\theta,\phi_i}\mid  \theta$ are the previously sampled trajectories, average over the $\theta$ range of interest.
+to calculate the derivative of log of trajectories, we use the embedding part of the trained function $F$ in part 1. 
+however, the $p(T_{\phi_i}(\theta))$ is hard to calculate, because the trajectory generation depends on POMDP, resulting in a unknown trajectory probabiliy.
+we would need to do a lot of samples and clustering for each case to determine the likelihood precisely.
+
+option 1.
+instead of evaluating the $p(T_{\phi_i}(\theta))$, we can use the distance of each trajectory to other trajectories as a indicator for the likelihood.
+the idea is, if the trajectory is very different from the others, its probability is low.
+if the trajectory is very similar to the others, its probability is high.
+let $\hat{\ell}$ be such function that approximate the probability using distance.
+
+$$ J(\theta) = - \langle{ \frac{d^2}{d^2\theta} \hat{\ell}(T_{\phi_i}(\theta))} \rangle_{T|\theta} $$
+
+option 2.
+we use baysien rule to change the likelihood.
+
+$$ J(\theta) = - \langle{ \frac{d^2}{d^2\theta} \ell(T_{\theta,\phi_i}\mid  \theta)} \rangle_{T|\theta} $$
+
+$$ = - \langle{ \frac{d^2}{d^2\theta}  \frac{p(\theta \mid T_{\theta,\phi_i}) \cdot p(T_{\theta,\phi_i}) }{p(\theta)}   } \rangle_{T|\theta} $$
+
+because $\theta$ inside the expectation is uniform distributed, we have
+
+$$ = - \langle{ \frac{d^2}{d^2\theta}  p(\theta \mid T_{\theta,\phi_i}) \cdot p(T_{\theta,\phi_i}) } \rangle_{T|\theta} $$
+
+here, this comes back to part1.
+the architecture is like an inverted (from traditional) variational auto encoder.
+we have input as a uniform distriubtion of $\theta^*$ that we are averaging over.
+we have latent being sampled trajectories $T_{\theta,\phi_i}$ (except we dont model the trajectory distrubiton).
+the target is $\theta^*$ again, but the network output is a probabilty distribution $p(\theta)$.
+$p(\theta)$ will not exactly match the point value $\theta^*$, because sampled trajectories $T_{\theta,\phi_i}$ introduce noise, we lose information in this step, making $p(\theta)$ not a delta distribution when we average this over the full $\Theta$ range.
+
+back to the part 2 option 2. 
+we replace the $p(T_{\theta,\phi_i})$ term by using sampled trajectories.
+and we get $p(\theta \mid T_{\theta,\phi_i})$ by passing these sample trajectories throught the network in part 1.
+
+
+
+
+
+lastly.
+with whichever approach, we can also reweight the importance of $\theta_j$ based on the current estimation of $p(\theta)$ to ignore the information gain for very unlikely $\theta_j$.
 
 efficiency concerns. this step requries solving an optimization problem that loops over the entire $\Theta, \Phi$ space.
 however, the trajectory embeddings can be pre calculated.
