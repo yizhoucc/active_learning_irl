@@ -110,7 +110,7 @@ the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualt
 the information gain is the KL divergence between the previous estimated agent hidden assumption given all previous data, $p(\theta\mid T_{\theta,\phi_i\; 0:t})$, and the updated estimation given the new trial data $(\theta\mid T_{\theta,\phi_i\; 0:t+1})$. 
 if the $T_t+1$ is independent from previous trial history $T_0:t$, then we have:
 
-$$ GI = KL(p(\theta) \; \mid \mid \;  p(\theta\mid  T_{\theta,\phi_i\; 0:t}) \cdot p(\theta\mid  T_{\theta,\phi_i\; t+1}) )$$
+$$ IG = KL(p(\theta) \; \mid \mid \;  p(\theta\mid  T_{\theta,\phi_i\; 0:t}) \cdot p(\theta\mid  T_{\theta,\phi_i\; t+1}) )$$
 
 since update follows Baysien, the likelihood $p(T_{\theta,\phi_i}\mid \theta)$ is the new information.
 the fisher information can be calculated by
@@ -155,9 +155,13 @@ $p(\theta)$ will not exactly match the point value $\theta^*$, because sampled t
 back to the part 2 option 2. 
 we replace the $p(T_{\theta,\phi_i})$ term by using sampled trajectories.
 and we get $p(\theta \mid T_{\theta,\phi_i})$ by passing these sample trajectories throught the network in part 1.
+due to we only have limited samples of trajectories given $\theta$ and unable to trace the gradient, we choose to approximate the fisher information.
+based on Cramer-Rao Lower Bound, the inverse of the variance (covariance) is the lower bound of fisher information.
 
 
 
+option 3.
+instead of the information gain directly, we try to minimize the entropy $H(\theta)$
 
 
 lastly.
