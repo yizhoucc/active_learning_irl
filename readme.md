@@ -51,7 +51,6 @@ here, i believe for this inverse problem, we are not start from scratch, and act
 in summary of this new approach, we use the network inference as inverse (likelihood funciton) and update the estimation of theta (baysien optimization), and solve a smaller optimization problem to select the best phi in terms of information. we to thsese two steps iteratively till converge.
 
 
-
 # methods
 
 ## notations
@@ -73,9 +72,9 @@ $$\theta \sim N(\mu_{\theta}, \Sigma_{\theta})$$
 
 the objective function is given by:
 
-$$argmin \;  \langle KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  q(\theta \mid T_{\theta^*,\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
+$$ argmin \;  \langle KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  q(\theta \mid T_{\theta^{*},\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
 
-$$argmin \; \langle KL(\;  p(\theta\mid \theta^*) \; \mid \mid \;  F(T_{\theta^*,\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
+$$ argmin \; \langle KL(\;  p(\theta\mid \theta^{*}) \; \mid \mid \;  F(T_{\theta^{*},\phi}, \phi) \; ) \rangle_{T;\theta^*} $$
 
 usually we do not model $p(\theta\mid \theta^*)$. 
 instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
@@ -135,6 +134,13 @@ discertize everything. F output to a softmax categorical theta. in finding phi s
 the major con is too many output dim when we have many parameters.
 my feeling is when the model gets larger, we need a lot more data to train it. could be a problem.
 
+part2, use pure math, need to calcuclate 2nd order dev of p(theta estimated | theta input), this is an autoencoder like thing, input is theta input, latent is T, output is theta estimation, a prob.
+still useful, can be used with old irc to get best task.
+
+so faster phi selection needs approximation or assumption. not pure math.
+
+use entropy instead of gi. input theta, T, use network we have p(theata), calcualte entropy. argmin entropy(theta)
+use gi, likelihood cannot calcualte, we use distance in embedding, to approxmiate prob distribution. slower, n2.
 
 
 
