@@ -111,7 +111,7 @@ the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualt
 the information gain is the KL divergence between the previous estimated agent hidden assumption given all previous data, $p(\theta\mid T_{\theta,\phi_i\; 0:t})$, and the updated estimation given the new trial data $(\theta\mid T_{\theta,\phi_i\; 0:t+1})$. 
 if the $T_t+1$ is independent from previous trial history $T_0:t$, then we have:
 
-$$ IG = KL(p(\theta) \; \mid \mid \;  p(\theta\mid  T_{\theta,\phi_i\; 0:t}) \cdot p(\theta\mid  T_{\theta,\phi_i\; t+1}) )$$
+$$ IG = \text{KL}(p(\theta) \; \mid \mid \;  p(\theta\mid  T_{\theta,\phi_i\; 0:t}) \cdot p(\theta\mid  T_{\theta,\phi_i\; t+1}) )$$
 
 since update follows Baysien, the likelihood $p(T_{\theta,\phi_i}\mid \theta)$ is the new information.
 the fisher information can be calculated by
@@ -128,6 +128,36 @@ however, the $p(T_{\phi_i}(\theta))$ is hard to calculate, because the trajector
 we would need to do a lot of samples and clustering for each case to determine the likelihood precisely.
 
 option 1.
+instead of treating the observation to be $T_{\phi_i}(\theta)$, we use observation $=p(\hat{\theta} \mid (T_{\phi_i}(\theta))=\text{F}(T_{\phi_i}(\theta)))$
+here we replace the trajectory samples with 'processed' trajectory samples.
+they are 'processed' by our part 1 neural network to output a gaussian distribution of estimated $\theta$.
+this process shapes the unknown distribution of trajectories into a known gaussian distribution.
+however, there could be some information loss during this process.
+
+$$ J(\theta) \ge \hat{J}(\theta) = - \langle{ \frac{d^2}{d^2\theta} \ell[p(\hat{\theta} \mid (T_{\phi_i}(\theta))) \mid \theta] \rangle_{T|\theta}} $$
+
+where the $\hat{J}(\theta)$ is the estimated fisher information.
+the 'processed' samples are arbitrary estimators of the latent $\theta$. 
+the lower bound of variance of an arbitrary estimator is defined by Cramer-Rao lower bound
+
+$$ n \cdot \text{Var}_{\theta}(\hat{\theta}) \ge \frac{1}{I(\theta)} $$
+
+$$  I(\theta) \ge \frac{1}{n \cdot \text{Var}_{\theta}(\hat{\theta})} $$
+
+where
+
+$$ \text{Var}_{\theta}(\hat{\theta}) = \text{Var}_{\theta}( p(\hat{\theta} \mid (T_{\phi_i}(\theta))) ) $$
+
+finally, we have a upper bound for estimated fisher information.there are 2 concerns. 
+first, does max the upper bound of fisher information achieves the same optimization goal in the end for max the fisher inforamtion directly?
+the intuitive answer is, maybe not. 
+one thing to argue is under gaussian distribution, the sampled upper bound has a fix relationship to the actual fisher info.
+some 1/n+1 1/n relationship.
+second, does maximizing the estimated fisher information the same as maximizing the actual fisher information?
+
+
+
+option 2.
 instead of evaluating the $p(T_{\phi_i}(\theta))$, we can use the distance of each trajectory to other trajectories as a indicator for the likelihood.
 the idea is, if the trajectory is very different from the others, its probability is low.
 if the trajectory is very similar to the others, its probability is high.
@@ -135,7 +165,7 @@ let $\hat{\ell}$ be such function that approximate the probability using distanc
 
 $$ J(\theta) = - \langle{ \frac{d^2}{d^2\theta} \hat{\ell}(T_{\phi_i}(\theta))} \rangle_{T|\theta} $$
 
-option 2.
+option 3.
 we use baysien rule to change the likelihood.
 
 $$ J(\theta) = - \langle{ \frac{d^2}{d^2\theta} \ell(T_{\theta,\phi_i}\mid  \theta)} \rangle_{T|\theta} $$
