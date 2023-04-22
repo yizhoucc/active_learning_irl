@@ -1,6 +1,11 @@
 # todo
 - potential new task if this is not working. see task section.
 - implement part 2
+- test part2 stair case, where optimal phi selection already exist. check to see if this method recover similar stair case procedure.
+- is q(theta*) = p(theta|theta*)? for part 1? if so, the part2 become much bette in proofs.
+- think about demo task. ideally we want to show it in something like cartpole.
+- cartpole add more noise.
+
 
 # current res
 rrn baseline: good. cost doesnt matter but cost makes theta length matter
@@ -260,6 +265,10 @@ https://davidstutz.de/the-mathematics-of-variational-auto-encoders/
 
 transdreamer
 https://arxiv.org/pdf/2202.09481.pdf
+
+
+staircase procedure
+https://link.springer.com/article/10.3758/bf03202828
 
 
 # supp
