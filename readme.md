@@ -15,6 +15,7 @@ rnn prob: good, with gradient clip.
 inferrence as inverse: good. need about 30 len trajectory and does one shot inverse.
 need some noise to make this slightly harder, but not too much harder for a demo task.
 
+some math proofs
 
 # proposal
 
@@ -267,8 +268,16 @@ transdreamer
 https://arxiv.org/pdf/2202.09481.pdf
 
 
-staircase procedure
+pelli QUEST procedure
 https://link.springer.com/article/10.3758/bf03202828
+
+
+efficiency placement rule
+https://psycnet.apa.org/record/1971-24061-001
+
+
+QUEST+, baysien adaptive phi selection procedure, multi param
+https://jov.arvojournals.org/article.aspx?articleid=2611972#159438058
 
 
 # supp
