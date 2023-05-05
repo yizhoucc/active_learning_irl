@@ -263,16 +263,22 @@ We measure the information by the following equation:
 
 $$I(\theta) \propto \frac{d^2}{d^2\theta} \cdot \frac{1}{\Psi(\phi-\theta)\cdot(1-\Psi(\phi-\theta))}$$
 
+
 where the right hand side is the square of first derivative over the binomial distribution standard deviation.
 this is the 'ideal sweat factor' proposed by Taylor in 1971.
 
 In this particular setup, our method can achieve the same performance as QUEST method.
 We are able to show:
 1. given the same prior and response (data history), the selected task $\phi$ is very similar.
-<img src="figure/questdemo/compareselectedphi.png" alt= 'compare phi' width='333' height='333'>
-2. given the same latent threshold to infer, the two method converge with similar number of trials.
-<img src="figure/questdemo/trend.png" alt= 'trend' width='333' height='222'>
 
+<p float="left">
+<img src="figure/questdemo/questmodevsour.png" alt= 'compare phi' width='155' height='155'>
+<img src="figure/questdemo/questmodevsour.png" alt= 'compare phi' width='155' height='155'>
+<p>
+
+2. given the same latent threshold to infer, the two method converge with similar number of trials.
+
+<img src="figure/questdemo/trend.png" alt= 'trend' width='333' height='222'>
 
 
 ## Complex behavior active inverse demo
