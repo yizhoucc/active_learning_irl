@@ -272,7 +272,7 @@ We are able to show:
 1. given the same prior and response (data history), the selected task $\phi$ is very similar.
 
 <p float="left">
-<img src="figure/questdemo/questmodevsour.png" alt= 'compare phi' width='155' height='155'>
+<img src="figure/questdemo/questmeanvsour.png" alt= 'compare phi' width='155' height='155'>
 <img src="figure/questdemo/questmodevsour.png" alt= 'compare phi' width='155' height='155'>
 <p>
 
