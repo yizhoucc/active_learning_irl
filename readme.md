@@ -102,8 +102,8 @@ instead of using KL divergence we just maximize the probabiliy of $\theta^*$ in 
 
 $$ p(\theta = \theta^*) =$$
 
-$$ p(\theta^* \mid  N(\mu_{\theta}, {\Sigma}_{\theta})) = \frac{1}{\sqrt{(2\pi)^n \det({\Sigma}_{\theta})}} \exp\left(-\frac{1}{2}(\theta^* - {\mu}_{\theta})^T {\Sigma}_{\theta}^{-1} (\theta^*-{\mu}_{\theta})\right)
- $$
+$$ p(\theta^* \mid N(\mu_{\theta}, \Sigma_{\theta})) = \frac{1}{\sqrt{(2\pi)^n \det(\Sigma_{\theta})}} \exp\left(-\frac{1}{2}(\theta^* - \mu_{\theta})^T \Sigma_{\theta}^{-1} (\theta^*-\mu_{\theta})\right) $$ 
+
 
 minimizing the negative log probabiliy over all $p(\theta^*)$ yields the trained function $F$.
 
