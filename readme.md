@@ -269,8 +269,8 @@ this is the 'ideal sweat factor' proposed by Taylor in 1971.
 In this particular setup, our method can achieve the same performance as QUEST method.
 We are able to show:
 1. given the same prior and response, the selected task $\phi$ is very similar.
+<img src="figure/questdemo/compareselectedphi.png" alt= 'compare phi' width='333' height='333'>
 2. given the same latent threshold to infer, the two method converge with similar number of trials.
-
 <img src="figure/questdemo/trend.png" alt= 'trend' width='333' height='222'>
 
 
