@@ -1,13 +1,10 @@
-# todo
-- potential new task if this is not working. see task section.
-- implement part 2
-- test part2 stair case, where optimal phi selection already exist. check to see if this method recover similar stair case procedure.
-- is q(theta*) = p(theta|theta*)? for part 1? if so, the part2 become much bette in proofs.
+# Todo
+
+- implement part 2 for complex task
 - think about demo task. ideally we want to show it in something like cartpole.
-- cartpole add more noise.
+- cartpole add more noise?
 
-
-# current res
+# Current result
 rrn baseline: good. cost doesnt matter but cost makes theta length matter
 
 rnn prob: good, with gradient clip. 
@@ -17,49 +14,58 @@ need some noise to make this slightly harder, but not too much harder for a demo
 
 some math proofs
 
-# proposal
-
-## intro
-### background
-based on the idea of inverse rational control.
-inverse rational control is a subset of inverse reinforcement learning, where we assume the subject or agnet to be suboptimal but still rational.
-generally, the suboptimality comes from wrong assumptions of the actual task dynamics and control preferrences.
-it can also comes from biological limitations such as represetnation and computation cost, so far we havent model that in the current version of irc.
-comparing to the other irl methods, irc has 3 benifits in neuroscience/cognition field.
-1, we do not assume subjects to be near optimal. instead, we assume they are rational and have individual differences.
-2, irc infers latent assumption, instead of a hard to inteprate reward function and policy.
-3, irc handels complex problems, whereas some inverse optimal control methods achieves 1 and 2 but can only be applied to simple problems.
-
-### goal that we try to achieve.
-however, limitations exist.
-first, irc relies on solving the pomdp in the reverse order, which often involves sampling and marginalization.
-the inverse model is not pre exposed to the samples, and we have to do this for each piece of data to evaulate the likelihood.
-this brings up efficiency concerns.
-second, the irc needs quite a lot of data to startin running.
-for one trial data, we wont be able update our theta estimation in a meaningful way.
-this is near random exploration.
-
-### proposed way.
-here i propose a potential upgrade to solve these 2 problems.
-i believe the fundamental problems is the sampling.
-we use the likelihood function and the current actual data to check if the current theta estimation reproduces samples that are similar to the actual data.
-in other words, sharing similar pattern.
-if we have a model that learns the pattern of this theta estimation ahead of time, we can direclty evaluate the likelihood without doing more samples.
-importantly, we will be able to select the best task to better infer the theta.
-if there exists such a model that takes the trajectory time series input and output to inferred theta, the model should twist the hidden representation of the trajectory manifold into a uniform grid theta and phi, and there exists a recurrent submodel that holds a represetntaion of the times series.
-using this submodel, we can embed the trial data, and calculate the information content of theta offered by a task phi.
-selecting a max information task phi could potentially accerate the irc.
-if we think the inverse problem as a learning problem.
-we will find the subject is the enviorment and experimenters are the agent, trying to build a subject model (like the world model in dreamer rl) from the interactions.
-most previous methods assume the data is precollected, in the replay buffer, so its like the agent is passively learning not actively explore in this setup.
-however, we know that from rl, once the agent develops some kind of inaccurate imaginary world model, active learning is almost a must to learn efficiently.
-here, i believe for this inverse problem, we are not start from scratch, and active learning can greatly accerate things.
-in summary of this new approach, we use the network inference as inverse (likelihood funciton) and update the estimation of theta (baysien optimization), and solve a smaller optimization problem to select the best phi in terms of information. we to thsese two steps iteratively till converge.
+achieve near identical performance as QUEST, a proven opitmal method in psychophysics tasks.
 
 
-# methods
 
-## notations
+
+# Proposal
+
+## Introduction
+
+### Background
+Based on the idea of inverse rational control (IRC), we can assume the subject or agent to be suboptimal but still rational. 
+The suboptimality generally comes from wrong assumptions of the actual task dynamics and control preferences. It can also come from biological limitations such as representation and computation cost, but this has not been modeled in the current version of IRC. 
+When compared to other inverse reinforcement learning methods, IRC has three benefits in the neuroscience/cognition field. 
+First, we do not assume subjects to be near optimal but rather rational with individual differences. 
+Second, IRC infers latent assumptions instead of a hard-to-interpret reward function and policy. 
+Third, IRC can handle complex problems, while some inverse optimal control methods achieve the first two benefits but can only be applied to simple problems.
+
+### Goal
+However, there are some limitations to inverse rational control (IRC) that need to be considered. 
+
+Firstly, IRC relies on solving the partially observable Markov decision process (POMDP) in the reverse order, which often involves sampling and marginalization. 
+The inverse model is not pre-exposed to the samples, and we have to do this for each piece of data to evaluate the likelihood. 
+This brings up efficiency concerns.
+
+Secondly, IRC needs quite a lot of data to start running. 
+For one trial data, we won't be able to update our theta estimation in a meaningful way. This is similar to random exploration.
+
+
+### Proposed way
+Here, I propose a potential upgrade to solve these two problems. 
+I believe the fundamental problem is sampling. 
+We currently use the likelihood function and the actual data to check if the current theta estimation reproduces samples that are similar to the actual data. 
+This process is inefficient since we have to evaluate the likelihood for each piece of data.
+
+To address this, we can use a model that learns the pattern of the theta estimation ahead of time. 
+This way, we can directly evaluate the likelihood without doing more samples. Additionally, with this model, we will be able to select the best task to better infer the theta. 
+This model should take the trajectory time series input and output the inferred theta. The model will twist the hidden representation of the trajectory manifold into a uniform grid theta and phi. 
+There exists a recurrent submodel that holds a representation of the time series. Using this submodel, we can embed the trial data and calculate the information content of theta offered by a task phi. 
+Selecting a max information task phi could potentially accelerate the IRC.
+
+If we think of the inverse problem as a learning problem, we can view the subject as the environment and experimenters as the agent, trying to build a subject model (like the world model in Dreamer RL) from the interactions. 
+Most previous methods assume that the data is precollected in the replay buffer, so it's like the agent is passively learning and not actively exploring in this setup. 
+However, we know from RL that once the agent develops an inaccurate imaginary world model, active learning is almost a must to learn efficiently. 
+Here, I believe that for this inverse problem, we are not starting from scratch, and active learning can greatly accelerate the learning process.
+
+In summary of this new approach, we use the network inference as the inverse (likelihood function) and update the estimation of theta (Bayesian optimization), and solve a smaller optimization problem to select the best phi in terms of information. 
+We perform these two steps iteratively until convergence.
+
+
+# Methods
+
+## Notations
 
 - $^*$ stands for actual data/ground truth data
 - $\hat{}$ stands for estimations
@@ -67,7 +73,7 @@ in summary of this new approach, we use the network inference as inverse (likeli
 - $\phi$ task configurations
 - $T$ time series trajectories data
 
-## part 1, inference as inverse
+## Part 1, inference as inverse
 Let $F$ be a neural network, reverse function of POMDP, such that 
 
 $$ F(T_{\theta,\phi}, \phi) = Decoder(Encoder(T_{\theta,\phi},\phi)) = p(\theta) $$
@@ -110,7 +116,7 @@ so, instead of training for reconstruction, we train the "encoder" part directly
 here we do have both encoder and decoding by naming.
 the encoder here refers to the recurrent hidden states embedding of the time series data, and the decoder here refers to the read out layers from the trajectory representation vector to the output.
 
-## part 2, active IRC
+## Part 2, active inverse by selecting the most informative task $\phi$
 
 the goal of the active IRC is to select $\phi_i \sim \Phi$ such that $I(\theta;T_{\theta,\phi_i})$ is maxed.
 the mutual information $I(\theta;T_{\theta,\phi_i})$ is usually hard to calcualte except from the discrete case, so we use the information gain instead.
@@ -224,60 +230,65 @@ so faster phi selection needs approximation or assumption. not pure math.
 use entropy instead of gi. input theta, T, use network we have p(theata), calcualte entropy. argmin entropy(theta)
 use gi, likelihood cannot calcualte, we use distance in embedding, to approxmiate prob distribution. slower, n2.
 
-## phi selection demo: showing our method can select optimal task for the inverse
+# Results
 
-in psychology studies, when experimenters hope to map out one's sensory threshold from subject's binary choice response of yes or no, experimenters want to select the correct stimulus for better efficiency. 
-there is a method called QUEST, quick estimation of stimulus threshold, developed by Pelli, achieves statastically optimal task selection and infer the latent subject's threshold by as few number of trials as possible.
-before applying our method to any other complex tasks, it would be benifital to try it out on this simple psychophysical task and confirm the information criterion does a good job in selecting the best task phi.
+## Best task $\phi$ selection demo: our method can select optimal task for the inverse
 
-in the task, the experimenters ask subject to distinguish between two stimuli, say red vs green lights.
-the subject is forced to make a choice: is the light just shown 1.red, or 2. green?
-when the light stimulus intensity is very low (dim), then the subject would randomly guess between the two possible answers, and achieve 50% accuracy.
+In psychology studies, experimenters aim to map out a subject's sensory threshold from their binary choice responses of "yes" or "no". 
+To achieve better efficiency, experimenters want to select the correct stimulus. 
+The QUEST method, developed by Pelli, achieves statistically optimal task selection and infers the latent subject's threshold using as few trials as possible. 
+Before applying our method to more complex tasks, it is beneficial to try it out on this simple psychophysical task and confirm that the information criterion does a good job in selecting the best task just like the QUEST method.
+
+In this task, the experimenters ask the subject to distinguish between two stimuli, such as red and green lights. 
+The subject is forced to make a choice: is the light just shown red or green? 
+When the light stimulus intensity is very low (dim), the subject would randomly guess between the two possible answers and achieve 50% accuracy.
 
 The subject behavior can be summarized by a psychometric function:
 
-$$\Psi_() = xxx $$
+$$\Psi(\phi) = \gamma + (1 - \gamma - \lambda)F(\beta(\log_{10}\phi - \log_{10}\theta))$$
 
-where the input $\phi$ is task stimulus intensity, $\theta$ is subject's latent threshold, and the output is the probability of correct.
-the parameter $\beta$ is the slope, $\gamma$ is the chance level.
+where the input $\phi$ is the task stimulus intensity, $\theta$ is the subject's latent threshold, and the output is the probability of correct. The parameter $\beta$ is the slope, $\gamma$ is the chance level, and $\lambda$ is the lapse rate.
 
-the process to map the latent threshold $\theta$ is under the same process as the irc, except the observation now is the binary response and accuracy instead of the pomdp behavior trajectory.
-the QUEST method take advantage of this special task, by selecting the next stimulus based on the current estimation of threshold.
+The process to map the latent threshold $\theta$ is under the same process as the IRC, except that the observation now is the binary response and accuracy instead of the POMDP behavior trajectory. The QUEST method takes advantage of this special task by selecting the next stimulus based on the current estimation of threshold:
 
-$$ \phi_next = f(p(\theta)) $$
+$$\phi_{\text{next}} = f(p(\theta))$$
 
-for example, the function f always select the peak of the theta distribution. another example, the function f returns a weighted average of the theta distribution.
-the idea is to achieve a higher expectation of 75% accuracy, because that is when phi=theta and we succesfully infer the theta.
+Here, the function $f$ is the best task selection function.
+QUEST method has several variations, and those differ by their selection function $f$. 
+For example, the function $f$ can select the peak of the theta distribution, or return a weighted average of the theta distribution. 
+Either way, the idea is to achieve a higher expectation of 75% accuracy because that is when $\phi=\theta$ and we successfully infer the threshold.
 
-our method based on the same hidden idea.
-we hope to select a task phi that maximize the information of theta we can get from subject behavior.
-we measure the information by the following equation.
-$$I(\theta) =  \frac{d/d\theta}^2{p()1-p} $$
+Our method is based on very similar idea. 
+We hope to select a task $\phi$ that maximizes the information of $\theta$ we can get from the subject's behavior. 
+We measure the information by the following equation:
+
+$$I(\theta) \propto \frac{d^2}{d^2\theta} \cdot \frac{1}{\Psi(\phi-\theta)\cdot(1-\Psi(\phi-\theta))}$$
+
+where the right hand side is the square of first derivative over the binomial distribution standard deviation.
+this is the 'ideal sweat factor' proposed by Taylor in 1971.
+
+In this particular setup, our method can achieve the same performance as QUEST method.
+We are able to show:
+1. given the same prior and response, the selected task $\phi$ is very similar.
+2. given the same latent threshold to infer, the two method converge with similar number of trials.
 
 
 
+## Complex behavior active inverse demo
+### Task requirement
 
+To demonstrate our part 1 and part 2, we need a task that satisfies the following features:
 
-## task
+- Able to inverse $\theta$: Given some task configuration $\phi_i$, different agent assumptions $\theta$ should produce different trajectories $T$.
+- Able to differentiate good vs. bad task $\phi$: Some task configurations $\phi_i$ provide much better information about $\theta$ than $\phi_j$. For example, $p(T_{\phi_i, \theta}\mid \theta)$ is much wider (trajectories are different) than $p(T_{\phi_j, \theta}\mid \theta)$ (trajectories are very similar, hard to tell apart, or even identical). In other words, on some conditions such as $\phi_i$, we can infer $\theta$ with low uncertainty, and with some other $\phi_j$, we cannot infer $\theta$ (or infer with high uncertainty).
 
-we need these features to demostrate our part1 and part2.
-a task should be:
-
-- (able to inverse $\theta$) give some task configuration $\phi_i$, different agent assumtpion $\theta$ should produce different trajectory $T$.
-
-- (able to differentiate good vs bad task $\phi$) some task configuration $\phi_i$ provide much better information of $\theta$ than $\phi_j$. for example, $p(T_{\phi_i, \theta}\mid \theta)$ is much wider (trajectories are different) than $p(T_{\phi_j, \theta}\mid \theta)$ (trajectories are very similar, hard to tell apart or even identical). 
-in other words, we want: at least on some condition such as  $\phi_i$ we can infer $\theta$ (with low uncertainty), and with some other $\phi_j$ we cannot infer $\theta$ (or infer with high uncertainty).
-
-the current cart pole vary length version is acceptable but not an ideal task.
-it is acceptable because it satisfied 1, we can infer $\theta$ pretty well.
-however, for most $\phi$ we can infer $\theta$ with relatively small uncertainty. that means we cannot differentiate different good/bad $\phi$.
-
+The current cart-pole varying-length version is acceptable but not an ideal task. It is acceptable because it satisfies feature 1 - we can infer $\theta$ pretty well. However, for most $\phi$, we can infer $\theta$ with relatively small uncertainty, meaning we cannot differentiate between different good/bad $\phi$ configurations. 
 
 
 
 demo task, cartpole
 
-## related work
+# Related works
 structed state space model. for long time series embedding
 https://srush.github.io/annotated-s4/#discrete-time-ssm-the-recurrent-representation
 https://www.youtube.com/watch?v=ugaT1uU89TA
@@ -317,7 +328,7 @@ ideal sweat factor, by taylor 1971
 https://psycnet.apa.org/record/1971-24061-001
 
 
-# supp
+# Supplimentery
 
 ## data format
 
@@ -343,7 +354,7 @@ in this case, we have (15^3)^2 combinations, each has about 400 ts, each ts has 
 
 
 
-# other notes
+# Other notes
 ```
 [Notification]
 
