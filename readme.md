@@ -224,6 +224,38 @@ so faster phi selection needs approximation or assumption. not pure math.
 use entropy instead of gi. input theta, T, use network we have p(theata), calcualte entropy. argmin entropy(theta)
 use gi, likelihood cannot calcualte, we use distance in embedding, to approxmiate prob distribution. slower, n2.
 
+## phi selection demo: showing our method can select optimal task for the inverse
+
+in psychology studies, when experimenters hope to map out one's sensory threshold from subject's binary choice response of yes or no, experimenters want to select the correct stimulus for better efficiency. 
+there is a method called QUEST, quick estimation of stimulus threshold, developed by Pelli, achieves statastically optimal task selection and infer the latent subject's threshold by as few number of trials as possible.
+before applying our method to any other complex tasks, it would be benifital to try it out on this simple psychophysical task and confirm the information criterion does a good job in selecting the best task phi.
+
+in the task, the experimenters ask subject to distinguish between two stimuli, say red vs green lights.
+the subject is forced to make a choice: is the light just shown 1.red, or 2. green?
+when the light stimulus intensity is very low (dim), then the subject would randomly guess between the two possible answers, and achieve 50% accuracy.
+
+The subject behavior can be summarized by a psychometric function:
+
+$$\Psi_() = xxx $$
+
+where the input $\phi$ is task stimulus intensity, $\theta$ is subject's latent threshold, and the output is the probability of correct.
+the parameter $\beta$ is the slope, $\gamma$ is the chance level.
+
+the process to map the latent threshold $\theta$ is under the same process as the irc, except the observation now is the binary response and accuracy instead of the pomdp behavior trajectory.
+the QUEST method take advantage of this special task, by selecting the next stimulus based on the current estimation of threshold.
+
+$$ \phi_next = f(p(\theta)) $$
+
+for example, the function f always select the peak of the theta distribution. another example, the function f returns a weighted average of the theta distribution.
+the idea is to achieve a higher expectation of 75% accuracy, because that is when phi=theta and we succesfully infer the theta.
+
+our method based on the same hidden idea.
+we hope to select a task phi that maximize the information of theta we can get from subject behavior.
+we measure the information by the following equation.
+$$I(\theta) =  \frac{d/d\theta}^2{p()1-p} $$
+
+
+
 
 
 ## task
@@ -239,8 +271,6 @@ in other words, we want: at least on some condition such as  $\phi_i$ we can inf
 the current cart pole vary length version is acceptable but not an ideal task.
 it is acceptable because it satisfied 1, we can infer $\theta$ pretty well.
 however, for most $\phi$ we can infer $\theta$ with relatively small uncertainty. that means we cannot differentiate different good/bad $\phi$.
-
-
 
 
 
@@ -278,6 +308,13 @@ https://psycnet.apa.org/record/1971-24061-001
 
 QUEST+, baysien adaptive phi selection procedure, multi param
 https://jov.arvojournals.org/article.aspx?articleid=2611972#159438058
+
+
+fisher info and cramer rao bound slides
+https://people.missouristate.edu/songfengzheng/Teaching/MTH541/Lecture%20notes/Fisher_info.pdf
+
+ideal sweat factor, by taylor 1971
+https://psycnet.apa.org/record/1971-24061-001
 
 
 # supp
