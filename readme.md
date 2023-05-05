@@ -88,7 +88,6 @@ the objective function is given by:
 $$ \arg\min_{\phi} \;\; \left \langle {\text{KL}\left(\; p(\theta \mid \theta^*) \;\middle\|\; q(\theta \mid T_{\theta^*,\phi}, \phi) \;\right)} \right \rangle_{T,\theta^*} $$
 
 
-
 usually we do not model $p(\theta\mid \theta^*)$. 
 instead, $p(\theta\mid \theta^*)$ naturally exist because due to stochasity there are some other $\theta$ (usually nearby) besides $\theta^*$ can produce the same trajectory $T$.
 
@@ -271,6 +270,8 @@ In this particular setup, our method can achieve the same performance as QUEST m
 We are able to show:
 1. given the same prior and response, the selected task $\phi$ is very similar.
 2. given the same latent threshold to infer, the two method converge with similar number of trials.
+
+<img src="figure/questdemo/trend.png" alt= 'trend' width='333' height='222'>
 
 
 

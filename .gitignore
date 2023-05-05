@@ -130,3 +130,6 @@ privateconfig
 
 # data
 data/
+~$inference as inverse.pptx
+.pyc
+relatedworks/
