@@ -61,12 +61,12 @@ np.random.seed(int(seed))
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-######## comment out if not using ###########
-font_dirs = [Path(os.getenv('workspace')) /
-             'firefly_plots/fonts/computer-modern', ]
-font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
-for font_file in font_files:
-    font_manager.fontManager.addfont(font_file)
+# ######## comment out if not using ###########
+# font_dirs = [Path(os.getenv('workspace')) /
+#              'firefly_plots/fonts/computer-modern', ]
+# font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+# for font_file in font_files:
+#     font_manager.fontManager.addfont(font_file)
 #############################################
 plt.rcParams['font.family'] = 'CMU Serif'
 plt.rcParams['font.size'] = '14'
