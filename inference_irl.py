@@ -53,6 +53,8 @@ class GRUNet(nn.Module):
         out = self.fc(out)
         return out, h
 
+
+
 input_size = padded_data.shape[2]
 num_layers = 2
 hidden_size = 32
